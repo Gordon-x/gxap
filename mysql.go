@@ -1,4 +1,4 @@
-package xap
+package gxap
 
 import (
 	"gorm.io/driver/mysql"

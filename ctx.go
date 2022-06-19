@@ -1,5 +1,5 @@
-//Package xap 内部公共代码
-package xap
+//Package gxap 内部公共代码
+package gxap
 
 import (
 	"context"

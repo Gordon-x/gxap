@@ -1,5 +1,5 @@
-// Package xap 项目内公用工具类
-package xap
+// Package gxap 项目内公用工具类
+package gxap
 
 import (
 	"github.com/go-redis/redis/v8"
