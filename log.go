@@ -19,14 +19,18 @@ func (ctx *Ctx) InitLog() {
 	core := zapcore.NewCore(encoder, writeSyncer, zapcore.InfoLevel)
 
 	logger := zap.New(core, zap.AddCaller())
+
 	ctx.Log = logger.Sugar()
 }
 
 func (ctx *Ctx) getEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder // 修改时间编码器
+	encoderConfig.EncodeTime = zapcore.RFC3339TimeEncoder // 修改时间编码器
 
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	if ctx.Config.Log.JsonMode {
+		return zapcore.NewJSONEncoder(encoderConfig)
+	}
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 

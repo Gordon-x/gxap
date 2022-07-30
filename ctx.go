@@ -3,7 +3,8 @@ package gxap
 
 import (
 	"context"
-	"flag"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -12,16 +13,16 @@ import (
 
 var ctx *Ctx
 
-func init() {
+func Context() *Ctx {
+	if ctx != nil {
+		return ctx
+	}
 	ctx = &Ctx{}
 
 	curDir, _ := os.Getwd()
 
-	var configPath string
-	flag.StringVar(&configPath, "config_path", filepath.Join(curDir, "config"), "config files path")
-	flag.Parse()
-
-	ctx.SysPath = sysPath{
+	var configPath = filepath.Join(curDir, "config")
+	ctx.SysPath = SysPath{
 		CurDir:    curDir,
 		ConfigDir: configPath,
 	}
@@ -31,9 +32,6 @@ func init() {
 	ctx.InitLog()
 	ctx.InitDb()
 	ctx.InitRedis()
-}
-
-func GlobalContext() *Ctx {
 	return ctx
 }
 
@@ -41,8 +39,10 @@ func (ctx *Ctx) SignalListen(callback func(s os.Signal)) {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 
-	sig := <-sigChan
-	callback(sig)
+	select {
+	case sig := <-sigChan:
+		callback(sig)
+	}
 }
 
 func (ctx *Ctx) Close() {
@@ -50,4 +50,24 @@ func (ctx *Ctx) Close() {
 		return
 	}
 	ctx.RedisClose()
+}
+
+func (ctx *Ctx) GetConfig() Conf {
+	return ctx.Config
+}
+
+func (ctx *Ctx) GetDb() *gorm.DB {
+	return ctx.Db
+}
+
+func (ctx *Ctx) GetLog() *zap.SugaredLogger {
+	return ctx.Log
+}
+
+func (ctx *Ctx) GetRedis() IRed {
+	return ctx.Redis
+}
+
+func (ctx *Ctx) GetSysPath() SysPath {
+	return ctx.SysPath
 }

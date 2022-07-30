@@ -1,7 +1,6 @@
 package gxap
 
 import (
-	"context"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -22,6 +21,7 @@ type confLog struct {
 	MaxBackups int    `yaml:"maxBackups"`
 	MaxAge     int    `yaml:"frequency"`
 	MaxSize    int    `yaml:"maxSize"`
+	JsonMode   bool   `yaml:"jsonMode"`
 }
 
 type confRedis struct {
@@ -40,14 +40,23 @@ type Conf struct {
 	Redis    confRedis `yaml:"redis"`
 }
 
-type sysPath struct {
+type SysPath struct {
 	CurDir    string
 	ConfigDir string
 }
 
-type iRed interface {
+type IRed interface {
 	redis.Cmdable
 	io.Closer
+}
+
+type ICtx interface {
+	GetConfig() Conf
+	GetDb() *gorm.DB
+	GetLog() *zap.SugaredLogger
+	GetSysPath() SysPath
+	GetRedis() IRed
+	Close()
 }
 
 // Ctx 环境
@@ -55,7 +64,6 @@ type Ctx struct {
 	Config  Conf
 	Db      *gorm.DB
 	Log     *zap.SugaredLogger
-	SysPath sysPath
-	Redis   iRed
-	SysCtx  context.Context
+	SysPath SysPath
+	Redis   IRed
 }
