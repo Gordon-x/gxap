@@ -2,7 +2,6 @@
 package gxap
 
 import (
-	"context"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"os"
@@ -26,7 +25,6 @@ func Context() *Ctx {
 		CurDir:    curDir,
 		ConfigDir: configPath,
 	}
-	ctx.SysCtx = context.Background()
 
 	ctx.InitSysConfig()
 	ctx.InitLog()
